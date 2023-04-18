@@ -1,10 +1,8 @@
 
-from textwrap import fill
 from tkinter import *
 from tkinter import ttk
 import random
 import time
-from turtle import window_width
 import BinarySearch
 import Bubblesort
 import SelectionSort
@@ -21,15 +19,13 @@ def GenerateList():
     maximum = maxInputRange.get()
     length = inputLength.get()
 
+    global generatedList
     generatedList = []
 
     for x in range(length):
         generatedList.append(random.randint(minimum, maximum))
 
-    print(generatedList)
-
     inputLabel.configure(text=f"Unsorted List:\n{generatedList}")
-    canvas.configure(scrollregion=canvas.bbox("all"))
 
 def SwapModes():
     print("clicked")
@@ -90,7 +86,7 @@ def Selection():
 def Update():
     pass
 
-def AdjustScrollbar():
+def AdjustScrollbar(event):
     canvas.configure(scrollregion=canvas.bbox("all"))
 
 sortType = "Random Array"
@@ -105,10 +101,10 @@ mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
-frame = Frame(mainframe)
+frame = Frame(mainframe, width=250)
 frame.grid(column=2, row=6, columnspan=3, sticky=(N,S))
 frame.rowconfigure(0, weight=1)
-frame.columnconfigure(0, weight=3)
+frame.columnconfigure(0, weight=1)
 frame.grid_propagate(True)
 
 canvas = Canvas(frame, width=250)
@@ -117,13 +113,13 @@ canvas.grid(column=2, row=6, columnspan=3)
 scrollbar = Scrollbar(frame, orient="vertical", command=canvas.yview)
 scrollbar.grid(column=6, row=6, sticky=(N,S))
 
-output_frame = Frame(canvas, width=250)
-canvas.create_window(0,0, window=output_frame, anchor="n")
+output_frame = Frame(canvas)
 
+canvas.create_window(0,0, window=output_frame, anchor="n")
 canvas.configure(yscrollcommand=scrollbar.set)
 canvas.configure(scrollregion=canvas.bbox("all"))
 
-frame.bind("<Configure>", AdjustScrollbar)
+output_frame.bind("<Configure>", AdjustScrollbar)
 
 #
 
