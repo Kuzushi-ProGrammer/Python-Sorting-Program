@@ -1,8 +1,10 @@
 
+from textwrap import fill
 from tkinter import *
 from tkinter import ttk
 import random
 import time
+from turtle import window_width
 import BinarySearch
 import Bubblesort
 import SelectionSort
@@ -10,6 +12,24 @@ import SelectionSort
 
 def Ball():
     print("balling")
+
+def Confirm():
+    print("confirm")
+
+def GenerateList():
+    minimum = minInputRange.get()
+    maximum = maxInputRange.get()
+    length = inputLength.get()
+
+    generatedList = []
+
+    for x in range(length):
+        generatedList.append(random.randint(minimum, maximum))
+
+    print(generatedList)
+
+    inputLabel.configure(text=f"Unsorted List:\n{generatedList}")
+    canvas.configure(scrollregion=canvas.bbox("all"))
 
 def SwapModes():
     print("clicked")
@@ -20,15 +40,20 @@ def SwapModes():
         sortType = "Random Array"
 
         elementLabel.grid(column=2, row=2, sticky=(W, E))
-        rangeLabel.grid(column=2, row=3, sticky=(W, E))
         elementEntry.grid(column=3, row=2, sticky=(W, E))
-        rangeEntry.grid(column=3, row=3, sticky=(W, E))
+
+        minRangeLabel.grid(column=2, row=3, sticky=(W, E))
+        minRangeEntry.grid(column=3, row=3, sticky=(W, E))
+
+        maxRangeLabel.grid(column=2, row=4, sticky=(W, E))
+        maxRangeEntry.grid(column=3, row=4, sticky=(W, E))
+
+        generateButton.grid(column=4, row=4, sticky=(W, E))
 
         customLabel.grid_remove()
         customEntry.grid_remove()
         customInstructions.grid_remove()
-        generateButton.configure(text="Generate List")
-        generateButton.grid_configure(column=4, row=3, sticky=(W, E))
+        confirmButton.grid_remove()
 
     elif sortType == "Random Array":
         modeButton.config(text="Custom Array")
@@ -37,15 +62,18 @@ def SwapModes():
         customLabel.grid(column=2, row=2, sticky=(W, E))
         customEntry.grid(column=3, row=2, sticky=(W, E))
         customInstructions.grid(column=3, row=3, sticky=W, columnspan=2)
+        confirmButton.grid(column=4, row=2, sticky=(W, E))
+
         customLabel.grid_configure(padx=5, pady=2.5)
         customEntry.grid_configure(padx=5, pady=2.5)
 
         elementLabel.grid_remove()
-        rangeLabel.grid_remove()
         elementEntry.grid_remove()
-        rangeEntry.grid_remove()
-        generateButton.configure(text="Confirm")
-        generateButton.grid_configure(column=4, row=2, sticky=(W, E))
+        minRangeLabel.grid_remove()
+        minRangeEntry.grid_remove()
+        maxRangeLabel.grid_remove()
+        maxRangeEntry.grid_remove()
+        generateButton.grid_remove()
 
 def Binary():
     pass
@@ -59,23 +87,53 @@ def Insertion():
 def Selection():
     pass
 
+def Update():
+    pass
+
+def AdjustScrollbar():
+    canvas.configure(scrollregion=canvas.bbox("all"))
+
 sortType = "Random Array"
 
 root = Tk()
 root.title("Sorting Algorithms")
-root.geometry("500x500+0+0")
+root.geometry("475x500+0+0")
+root.resizable(False, False)
 
 mainframe = ttk.Frame(root, padding="3 3 12 12")
 mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
+frame = Frame(mainframe)
+frame.grid(column=2, row=6, columnspan=3, sticky=(N,S))
+frame.rowconfigure(0, weight=1)
+frame.columnconfigure(0, weight=3)
+frame.grid_propagate(True)
+
+canvas = Canvas(frame, width=250)
+canvas.grid(column=2, row=6, columnspan=3)
+
+scrollbar = Scrollbar(frame, orient="vertical", command=canvas.yview)
+scrollbar.grid(column=6, row=6, sticky=(N,S))
+
+output_frame = Frame(canvas, width=250)
+canvas.create_window(0,0, window=output_frame, anchor="n")
+
+canvas.configure(yscrollcommand=scrollbar.set)
+canvas.configure(scrollregion=canvas.bbox("all"))
+
+frame.bind("<Configure>", AdjustScrollbar)
+
+#
+
 # columnspan and rowspan make the things go across more than one column or row
 # columnspan horizontal, rowspan vertical
 
 #constants
-inputSpan = IntVar()
-inputRange = DoubleVar()
+inputLength = IntVar()
+minInputRange = IntVar()
+maxInputRange = IntVar()
 inputList = StringVar()
 
 # top bar configuration
@@ -100,54 +158,53 @@ modeButton.grid_configure(padx=5, pady=2.5)
 # assigning references (grid isnt called yet)
 # random array
 elementLabel = ttk.Label(mainframe, text="# of elements:")
-rangeLabel = ttk.Label(mainframe, text="Range:")
-elementEntry = ttk.Entry(mainframe, width=5, textvariable=inputSpan)
-rangeEntry = ttk.Entry(mainframe, width=5, textvariable=inputRange)
-generateButton = ttk.Button(mainframe, text="Generate List", command=Ball)
+elementEntry = ttk.Entry(mainframe, width=5, textvariable=inputLength)
+minRangeLabel = ttk.Label(mainframe, text="Min. range:")
+minRangeEntry = ttk.Entry(mainframe, width=5, textvariable=minInputRange)
+maxRangeLabel = ttk.Label(mainframe, text="Max. Range:")
+maxRangeEntry = ttk.Entry(mainframe, width=5, textvariable=maxInputRange)
+generateButton = ttk.Button(mainframe, text="Generate List", command=GenerateList)
+confirmButton = ttk.Button(mainframe, text="Confirm", command=Confirm)
 
 # custom array
 customLabel = ttk.Label(mainframe, text="Input Array:")
 customInstructions = ttk.Label(mainframe, text="Format: 1, 4, 5, 6, etc.")
 customEntry = ttk.Entry(mainframe, width=5, textvariable=inputList)
 
-# output statements
-inputLabel = ttk.Label(mainframe, text="Unsorted List:")
-outputLabel = ttk.Label(mainframe, text="Sorted List:")
-timeLabel = ttk.Label(mainframe, text="Time Taken:")
-emptySpace = ttk.Label(mainframe, text="-")
+# output statements (experimenting with frames)
+inputLabel = ttk.Label(output_frame, text="Unsorted List:", wraplength=250, anchor="n")
+outputLabel = ttk.Label(output_frame, text="Sorted List:")
+timeLabel = ttk.Label(output_frame, text="Time Taken:")
+emptySpace = ttk.Label(mainframe, text="\n")
 
 
 # default state
 elementLabel.grid(column=2, row=2, sticky=(W, E))
-rangeLabel.grid(column=2, row=3, sticky=(W, E))
 elementEntry.grid(column=3, row=2, sticky=(W, E))
-rangeEntry.grid(column=3, row=3, sticky=(W, E))
+maxRangeLabel.grid(column=2, row=4, sticky=(W, E))
+maxRangeEntry.grid(column=3, row=4, sticky=(W, E))
+minRangeLabel.grid(column=2, row=3, sticky=(W, E))
+minRangeEntry.grid(column=3, row=3, sticky=(W, E))
 customLabel.grid(column=2, row=3, sticky=(W, E))
 customEntry.grid(column=3, row=3, sticky=(W, E))
-generateButton.grid(column=4, row=3, sticky=(W, E))
-emptySpace.grid(column=3, row=4)
-inputLabel.grid(column=2, row=5, columnspan=3)
-outputLabel.grid(column=2, row=6, columnspan=3)
-timeLabel.grid(column=2, row=7, columnspan=3)
+generateButton.grid(column=4, row=4, sticky=(W, E))
+confirmButton.grid(column=4, row=2, sticky=(W, E))
+emptySpace.grid(column=3, row=5)
+inputLabel.grid(column=3, row=6, columnspan=3)
+outputLabel.grid(column=3, row=7, columnspan=3)
+timeLabel.grid(column=3, row=8, columnspan=3)
 
 elementLabel.grid_configure(padx=5, pady=2.5)
-rangeLabel.grid_configure(padx=5, pady=2.5)
 elementEntry.grid_configure(padx=5, pady=2.5)
-rangeEntry.grid_configure(padx=5, pady=2.5)
+
+minRangeLabel.grid_configure(padx=5, pady=2.5)
+minRangeEntry.grid_configure(padx=5, pady=2.5)
+
+maxRangeLabel.grid_configure(padx=5, pady=2.5)
+maxRangeEntry.grid_configure(padx=5, pady=2.5)
 
 customLabel.grid_remove()
 customEntry.grid_remove()
-'''
-for child in mainframe.winfo_children():
-    child.grid_configure(padx=5, pady=2.5)
- '''
-root.mainloop()
-'''
-array = []
-for x in range(100): #user define this bitch (number of values)
-    array.append(random.randrange(0,1000))
-length = len(array)
+confirmButton.grid_remove()
 
-sortedArray = SelectionSort(array, length)
-print(sortedArray)
-'''
+root.mainloop()
