@@ -1,4 +1,4 @@
-def SelectionSort(array, length):
+def Sort(array, length):
     for x in range(length):
         min_index = x
         for y in range(x+1, length):

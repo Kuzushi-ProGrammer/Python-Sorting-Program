@@ -1,18 +1,29 @@
 
+from sqlite3 import Timestamp
 from tkinter import *
 from tkinter import ttk
 import random
 import time
-import BinarySearch
+import BinarySearch #change menu to a number selector to search
 import Bubblesort
 import SelectionSort
-#import InsertionSort
+#import InsertionSort (I HAVENT MADE THIS YET)
 
 def Ball():
     print("balling")
 
 def Confirm():
-    print("confirm")
+    global generatedList
+    generatedList = inputList.get()
+
+    print(generatedList)
+    generatedList = generatedList.split(",")
+    for x in generatedList:
+         generatedList[generatedList.index(x)] = x.strip(" ")
+
+    generatedList = list(map(int, generatedList))
+    inputLabel.configure(text=f"Unsorted List:\n{generatedList}\n")
+
 
 def GenerateList():
     minimum = minInputRange.get()
@@ -25,7 +36,7 @@ def GenerateList():
     for x in range(length):
         generatedList.append(random.randint(minimum, maximum))
 
-    inputLabel.configure(text=f"Unsorted List:\n{generatedList}")
+    inputLabel.configure(text=f"Unsorted List:\n{generatedList}\n")
 
 def SwapModes():
     print("clicked")
@@ -72,20 +83,39 @@ def SwapModes():
         generateButton.grid_remove()
 
 def Binary():
+    #something something do the mario
     pass
 
 def Bubble():
-    pass
+    timeStamp = time.time_ns()
+    sortedList = Bubblesort.Sort(generatedList)
+    timeStamp = time.time_ns() - timeStamp
+    outputLabel.configure(text=f"Sorted List:\n{sortedList}\n")
+
+    if timeStamp <=0:
+        timeLabel.configure(text=f"Time Taken: {round(timeStamp*0.000000001, 6)} Seconds")
+    else:
+        timeLabel.configure(text=f"Time Taken: {round(timeStamp, 6)} Nanoseconds")
 
 def Insertion():
+    #sortedList = Insertionsort(text=f"Sorted List:\n{sortedList}\n")
+    #outputLabel.configure(text=f"Sorted List:\n{sortedList}\n")
     pass
 
 def Selection():
-    pass
+    length = inputLength.get()
 
-def Update():
-    pass
+    timeStamp = time.time_ns()
+    sortedList = SelectionSort.Sort(generatedList, length)
+    timeStamp = time.time_ns() - timeStamp
+    outputLabel.configure(text=f"Sorted List:\n{sortedList}\n")
 
+    print(timeStamp)
+    if timeStamp <=0:
+        timeLabel.configure(text=f"Time Taken: {round(timeStamp*0.000000001, 6)} Seconds")
+    else:
+        timeLabel.configure(text=f"Time Taken: {round(timeStamp, 6)} Nanoseconds")
+    
 def AdjustScrollbar(event):
     canvas.configure(scrollregion=canvas.bbox("all"))
 
@@ -93,7 +123,7 @@ sortType = "Random Array"
 
 root = Tk()
 root.title("Sorting Algorithms")
-root.geometry("475x500+0+0")
+root.geometry("460x500+0+0")
 root.resizable(False, False)
 
 mainframe = ttk.Frame(root, padding="3 3 12 12")
@@ -133,10 +163,10 @@ maxInputRange = IntVar()
 inputList = StringVar()
 
 # top bar configuration
-bubbleButton = ttk.Button(mainframe, text="Bubble Sort", command=Ball)
-insertionButton = ttk.Button(mainframe, text="Insertion Sort", command=Ball)
-selectionButton = ttk.Button(mainframe, text="Selection Sort", command=Ball)
-binaryButton = ttk.Button(mainframe, text="Binary Search", command=Ball)
+bubbleButton = ttk.Button(mainframe, text="Bubble Sort", command=Bubble)
+insertionButton = ttk.Button(mainframe, text="Insertion Sort", command=Insertion)
+selectionButton = ttk.Button(mainframe, text="Selection Sort", command=Selection)
+binaryButton = ttk.Button(mainframe, text="Binary Search", command=Binary)
 modeButton = ttk.Button(mainframe, text="Custom Array", command=SwapModes)
 
 bubbleButton.grid(column=2, row=1, sticky=W)
@@ -169,9 +199,12 @@ customEntry = ttk.Entry(mainframe, width=5, textvariable=inputList)
 
 # output statements (experimenting with frames)
 inputLabel = ttk.Label(output_frame, text="Unsorted List:", wraplength=250, anchor="n")
-outputLabel = ttk.Label(output_frame, text="Sorted List:")
-timeLabel = ttk.Label(output_frame, text="Time Taken:")
-emptySpace = ttk.Label(mainframe, text="\n")
+outputLabel = ttk.Label(output_frame, text="Sorted List:", wraplength=250, anchor="n")
+timeLabel = ttk.Label(mainframe, text="Time Taken:", wraplength=250, anchor="n", justify="center")
+
+#empty spaces
+ttk.Label(mainframe, text="\n").grid(column=3, row=5)
+ttk.Label(mainframe, text="\n").grid(column=3, row=8)
 
 
 # default state
@@ -185,10 +218,9 @@ customLabel.grid(column=2, row=3, sticky=(W, E))
 customEntry.grid(column=3, row=3, sticky=(W, E))
 generateButton.grid(column=4, row=4, sticky=(W, E))
 confirmButton.grid(column=4, row=2, sticky=(W, E))
-emptySpace.grid(column=3, row=5)
 inputLabel.grid(column=3, row=6, columnspan=3)
 outputLabel.grid(column=3, row=7, columnspan=3)
-timeLabel.grid(column=3, row=8, columnspan=3)
+timeLabel.grid(column=2, row=9, columnspan=3)
 
 elementLabel.grid_configure(padx=5, pady=2.5)
 elementEntry.grid_configure(padx=5, pady=2.5)

@@ -1,4 +1,4 @@
-def sort(inputList):
+def Sort(inputList):
     swapped = False                                 
     for x in range(len(inputList)):                
         try:                                      
@@ -15,6 +15,6 @@ def sort(inputList):
             except:                              
                 pass
     if swapped:
-        return sort(inputList)                   
+        return Sort(inputList)                   
     else:                                       
         return inputList
